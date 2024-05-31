@@ -1,40 +1,34 @@
-Below are the steps to get your plugin running. You can also find instructions at:
+# SyncWorks: Excel-Figma Connector
 
-  https://www.figma.com/plugin-docs/plugin-quickstart-guide/
+SyncWorks is a powerful tool that seamlessly integrates Excel spreadsheets with Figma, enabling efficient data synchronization and content population across platforms.
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+## Features
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+- **Excel Upload**: Easily upload Excel (.xlsx, .xls) files containing content data.
+- **Sheet Selection**: Choose specific sheets from the uploaded Excel file to sync with Figma.
+- **Preview Content**: Preview spreadsheet content before applying it to Figma frames.
+- **Figma Frame Population**: Populate Figma frames with content directly from Excel rows.
 
-  https://nodejs.org/en/download/
+## Installation
 
-Next, install TypeScript using the command:
+1. Download the SyncWorks plugin files.
+2. Install the plugin in your Figma environment.
+3. Access SyncWorks from the Figma plugins menu.
 
-  npm install -g typescript
+## Usage
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+1. Upload your Excel spreadsheet containing content data.
+2. Select the desired sheet from the dropdown menu.
+3. Preview the content and verify data alignment.
+4. Apply the content to Figma frames.
+5. Customize and fine-tune the imported content as needed.
 
-  npm install --save-dev @figma/plugin-typings
+## Requirements
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+- Figma account
+- Compatible web browser
+- Excel spreadsheet with content data
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+## Acknowledgements
 
-For more information, visit https://www.typescriptlang.org/
-
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
-
-We recommend writing TypeScript code using Visual Studio code:
-
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-    then select "npm: watch". You will have to do this again every time
-    you reopen Visual Studio Code.
-
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+SyncWorks is built with love and coffee by the SyncWorks development team.
