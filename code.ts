@@ -13,54 +13,57 @@ updateFrameCount();
 
 // Listen for selection changes
 figma.on('selectionchange', () => {
-    updateFrameCount();
+  updateFrameCount();
 });
 
 figma.ui.onmessage = async (msg) => {
-    if (msg.type === 'get-count') {
-        updateFrameCount();
-    }
-    else if (msg.type === 'error') {
-      figma.notify(msg.message,{
-        timeout:1000,
+  switch (msg.type) {
+    case 'get-count':
+      updateFrameCount();
+      break;
+    case 'error':
+      figma.notify(msg.message, {
+        timeout: 1000,
         error: true
       });
-      figma.ui.postMessage({ type: 'errorAcknowledged' });
-    }
-    if (msg.type === 'populate-template') {
+      break;
+    case 'populate-template':
       const data = msg.data;
-      console.log(data);
-      const columnNames = data[0]; 
-      
+      const columnNames = data[0];
+
       const selectedFrames = figma.currentPage.selection.filter(node => node.type === "FRAME") as FrameNode[];
-  
       for (const frame of selectedFrames) {
         for (let i = 1; i < data.length; i++) {
           const rowData = data[i];
-  
+
           for (let j = 0; j < rowData.length; j++) {
             const item = rowData[j];
-            const columnName = columnNames[j]; 
-  
+            const columnName = columnNames[j];
+
             const textNode = frame.findOne(node => node.name === `${columnName}` && node.type === "TEXT") as TextNode;
-            const imageFrame = frame.findOne(node => node.name === `${columnName}` && node.type === "FRAME") as FrameNode;
-  
+            const imageNode = frame.findOne(node => node.name === `${columnName}` && (node.type === "FRAME" || node.type === "RECTANGLE")) as FrameNode | RectangleNode;
+
             if (textNode) {
               await setTextAsync(textNode, item);
-            } else if (imageFrame) {
-              loadImageAndSetImage(imageFrame, item);
+            } else if (imageNode) {
+              loadImageAndSetImage(imageNode, item);
             } else {
-              figma.notify(`No matching node found for column: ${columnName}`,{
-                timeout:1000,
+              figma.notify('Few columns not found in the frame.', {
+                timeout: 1000,
                 error: true
               });
+              break;
             }
           }
         }
       }
-    } else if (msg.type === 'check-selection') {
+      break;
+    case 'check-selection':
       updateFrameCount();
-    }
+      break;
+    default:
+      break;
+  }
 };
 
 async function setTextAsync(textNode: TextNode, text: string) {
@@ -68,68 +71,66 @@ async function setTextAsync(textNode: TextNode, text: string) {
     await figma.loadFontAsync(textNode.fontName as FontName);
     textNode.characters = text;
   } catch (error) {
-    console.error('Error setting text:', error);
+    figma.notify(`Error setting text:${error}`, {
+      timeout: 1000,
+      error: true
+    });
   }
 }
 
-function loadImageAndSetImage(frame: FrameNode, imageUrl: string) {
-  try {
-    // Create the image from the URL
-    figma.createImageAsync(imageUrl).then((image)=>{
-      // Get the dimensions of the image
-      image.getSizeAsync().then(({ width: imageWidth, height: imageHeight }) => {
-        // Check if the image exceeds Figma's maximum allowable dimensions
-    const MAX_DIMENSION = 4000;
-    if (imageWidth > MAX_DIMENSION || imageHeight > MAX_DIMENSION) {
-      throw new Error('Image is too large to be processed by Figma.');
-    }
+function loadImageAndSetImage(node: FrameNode | RectangleNode, imageUrl: string) {
 
-    // Get the dimensions of the frame
-    const frameWidth = frame.width;
-    const frameHeight = frame.height;
+  // Create the image from the URL
+  figma.createImageAsync(imageUrl).then((image) => {
+    // Get the dimensions of the image
+    image.getSizeAsync().then(({ width: imageWidth, height: imageHeight }) => {
 
-    // Calculate the scaling factors to fit the image within the frame
-    const widthScale = frameWidth / imageWidth;
-    const heightScale = frameHeight / imageHeight;
-    const scale = Math.min(widthScale, heightScale);
+      // Get the dimensions of the frame
+      const nodeWidth = node.width;
+      const nodeHeight = node.height;
+  
+      
+      // Calculate the scaling factors to fit the image within the frame
+      const widthScale = nodeWidth / imageWidth;
+      const heightScale = nodeHeight / imageHeight;
+      const scale = Math.min(widthScale, heightScale);
 
-    // Calculate the scaled dimensions of the image
-    const scaledWidth = imageWidth * scale;
-    const scaledHeight = imageHeight * scale;
-    console.log(scaledWidth, scaledHeight)
-    // Create a rectangle node and resize it to match the scaled image dimensions
-    const imageNode = figma.createRectangle();
-    imageNode.resize(scaledWidth, scaledHeight);
+      // Calculate the scaled dimensions of the image
+      const scaledWidth = imageWidth * scale;
+      const scaledHeight = imageHeight * scale;
 
-    // Set the image as the fill of the rectangle node
-    imageNode.fills = [{ type: 'IMAGE', imageHash: image.hash, scaleMode: 'FILL' }];
-
-    // Position the image node in the center of the frame
-    imageNode.x = (frameWidth - scaledWidth) / 2;
-    imageNode.y = (frameHeight - scaledHeight) / 2;
-
-    // Remove existing rectangle nodes from the frame
-    frame.children.forEach(child => {
-      if (child.type === 'RECTANGLE') {
-        child.remove();
+      // Create a rectangle node and resize it to match the scaled image dimensions
+      if (node.type === 'RECTANGLE') {
+        node.fills = [{ type: 'IMAGE', imageHash: image.hash, scaleMode: 'FILL' }];
+        console.log('Image set as fill for RECTANGLE node:', node);
+      } else if (node.type === 'FRAME') {
+        const imageNode = figma.createRectangle();
+        imageNode.resize(scaledWidth, scaledHeight);
+        imageNode.fills = [{ type: 'IMAGE', imageHash: image.hash, scaleMode: 'FILL' }];
+        imageNode.x = (nodeWidth - scaledWidth) / 2;
+        imageNode.y = (nodeHeight - scaledHeight) / 2;
+  
+        node.children.forEach(child => {
+          if (child.type === 'RECTANGLE') {
+            child.remove();
+          }
+        });
+  
+        node.appendChild(imageNode);
+        console.log('Image set as child for FRAME node:', node);
       }
-    });
-
-    // Append the rectangle node to the frame
-    frame.appendChild(imageNode);
-      }).catch(error => {
-        console.error('Error getting image size:', error);
-      });
-    
-
-    }).catch((error)=>{
-      figma.notify(error, {
-        timeout:1000,
+    }).catch(error => {
+      figma.notify(`Error getting image size: ${error}`, {
+        timeout: 1000,
         error: true
       });
     });
-    
-  } catch (error) {
-    console.error('Error loading image:', error);
-  }
+
+
+  }).catch((error) => {
+    figma.notify(error, {
+      timeout: 1000,
+      error: true
+    });
+  });
 }

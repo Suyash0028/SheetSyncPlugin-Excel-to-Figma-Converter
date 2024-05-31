@@ -78,7 +78,7 @@
         width: 100%;
         background-color: #ffffff;
         color: #000000; /* Black font color */
-        padding: 15px;
+        padding: 10px;
         margin: 0;
         box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
       }
@@ -94,15 +94,15 @@
         margin: 0;
         font-size: 10px;
       }
-
+      
       /* Custom Button CSS */
       .custom-Btn {
         background-color: #ff4201; /* Light orange */
         padding: 5px;
         border-radius: 6px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 212px; /* 70% of the screen width */
-        height: 28px;
+        width: 260px; /* 70% of the screen width */
+        height: 38px;
         font-size: 11px;
         margin: 0 auto; /* Center horizontally */
         color: white;
@@ -127,12 +127,11 @@
       }
       .custom-table {
         width: 320px;
-        height: 189px;
+        height: 235px;
         font-size: 12px;
-        overflow: auto;
+        overflow: scroll !important;
         background-color: white;
         border: 1px solid white;
-        margin-bottom: 100px;
       }
       .custom-table table {
         border-collapse: separate;
@@ -147,7 +146,10 @@
         vertical-align: top;
         box-sizing: border-box;
       }
-
+      td {
+        padding-top: 0 !important;
+        color: #6c6c6c;
+      }
       /* Sheet selection Dropdown CSS */
       .dropdownBtn {
         padding: 10px;
@@ -163,7 +165,7 @@
       .dropdownBtn option {
         background-color: #fff !important;
       }
-      
+
       /* Back Button CSS */
       #back-button-container {
         position: absolute;
@@ -183,13 +185,30 @@
       #back-button strong {
         font-weight: bold;
       }
+      #frame-count {
+        margin-top: 15px;
+      }
     </style>
   </head>
   <body>
     <div class="container mt-5">
       <div id="back-button-container" class="hidden">
         <button id="back-button">
-          <i class="fas fa-angle-left"></i>
+          <svg
+            width="10"
+            height="14"
+            viewBox="0 0 10 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 13L1 7L9 1"
+              stroke="#6C6C6C"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
       </div>
       <p
@@ -199,17 +218,25 @@
       >
         <strong>Select Spreadsheet</strong>
       </p>
-      <select id="sheetDropdown" class="dropdownBtn hidden" style="margin: 5px; width: -webkit-fill-available;">
+      <select
+        id="sheetDropdown"
+        class="dropdownBtn hidden"
+        style="margin: 5px 0; width: -webkit-fill-available"
+      >
         <option value="#">Select a sheet</option>
       </select>
       <div>
-        <p style="margin: 0; margin-top: 15px;" id="selectedFileName" class="hidden"></p>
+        <p
+          style="margin: 0; margin-top: 15px"
+          id="selectedFileName"
+          class="hidden"
+        ></p>
         <p style="margin: 0" id="selectedSheetName" class="hidden"></p>
         <div id="syncRow" class="hidden mt-3" style="text-align: center">
           <button class="form-control custom-Btn" id="syncRowBtn">
             Sync Rows with Layers
           </button>
-          <span id="frame-count"></span>
+          <p id="frame-count"></p>
         </div>
       </div>
     </div>
@@ -223,8 +250,21 @@
             accept=".xlsx, .xls"
             id="fileInput"
           />
-          <p><i class="fas fa-circle-plus"></i></p>
-          <p>Upload file</p>
+          <p>
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 17 17"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9.1 6C9.1 5.66863 8.83137 5.4 8.5 5.4C8.16863 5.4 7.9 5.66863 7.9 6H9.1ZM7.9 11C7.9 11.3314 8.16863 11.6 8.5 11.6C8.83137 11.6 9.1 11.3314 9.1 11H7.9ZM11 9.1C11.3314 9.1 11.6 8.83137 11.6 8.5C11.6 8.16863 11.3314 7.9 11 7.9V9.1ZM6 7.9C5.66863 7.9 5.4 8.16863 5.4 8.5C5.4 8.83137 5.66863 9.1 6 9.1V7.9ZM7.9 6V8.5H9.1V6H7.9ZM7.9 8.5V11H9.1V8.5H7.9ZM11 7.9H8.5V9.1H11V7.9ZM8.5 7.9H6V9.1H8.5V7.9ZM15.4 8.5C15.4 12.3108 12.3108 15.4 8.5 15.4V16.6C12.9735 16.6 16.6 12.9735 16.6 8.5H15.4ZM8.5 15.4C4.68923 15.4 1.6 12.3108 1.6 8.5H0.4C0.4 12.9735 4.02649 16.6 8.5 16.6V15.4ZM1.6 8.5C1.6 4.68923 4.68923 1.6 8.5 1.6V0.4C4.02649 0.4 0.4 4.02649 0.4 8.5H1.6ZM8.5 1.6C12.3108 1.6 15.4 4.68923 15.4 8.5H16.6C16.6 4.02649 12.9735 0.4 8.5 0.4V1.6Z"
+                fill="#FF4201"
+              />
+            </svg>
+          </p>
+          <p>Upload File</p>
         </label>
         <!-- Table to display Excel data -->
         <table id="data-table" class="hidden custom-table">
@@ -248,8 +288,21 @@
       </div>
     </div>
     <div class="step-section">
-      <div class="d-flex align-items-center">
-        <div class="info-icon"><i class="fas fa-circle-info"></i></div>
+      <div class="d-flex align-items-center position-relative">
+        <div class="info-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.125 8.125H8.725C8.725 7.79363 8.45637 7.525 8.125 7.525V8.125ZM8.125 11.2917H7.525C7.525 11.623 7.79363 11.8917 8.125 11.8917V11.2917ZM8.91667 11.8917C9.24804 11.8917 9.51667 11.623 9.51667 11.2917C9.51667 10.9603 9.24804 10.6917 8.91667 10.6917V11.8917ZM7.33333 7.525C7.00196 7.525 6.73333 7.79363 6.73333 8.125C6.73333 8.45637 7.00196 8.725 7.33333 8.725V7.525ZM8.125 4.35833C7.79363 4.35833 7.525 4.62696 7.525 4.95833C7.525 5.2897 7.79363 5.55833 8.125 5.55833V4.35833ZM8.13292 5.55833C8.46429 5.55833 8.73292 5.2897 8.73292 4.95833C8.73292 4.62696 8.46429 4.35833 8.13292 4.35833V5.55833ZM7.525 8.125V11.2917H8.725V8.125H7.525ZM8.125 11.8917H8.91667V10.6917H8.125V11.8917ZM8.125 7.525H7.33333V8.725H8.125V7.525ZM14.65 8.125C14.65 11.7287 11.7287 14.65 8.125 14.65V15.85C12.3914 15.85 15.85 12.3914 15.85 8.125H14.65ZM8.125 14.65C4.52134 14.65 1.6 11.7287 1.6 8.125H0.4C0.4 12.3914 3.8586 15.85 8.125 15.85V14.65ZM1.6 8.125C1.6 4.52134 4.52134 1.6 8.125 1.6V0.4C3.8586 0.4 0.4 3.8586 0.4 8.125H1.6ZM8.125 1.6C11.7287 1.6 14.65 4.52134 14.65 8.125H15.85C15.85 3.8586 12.3914 0.4 8.125 0.4V1.6ZM8.125 5.55833H8.13292V4.35833H8.125V5.55833Z"
+              fill="#242629"
+            />
+          </svg>
+        </div>
         <div>
           <div id="step-title">Upload a Spreadsheet!</div>
           <p id="step-content">
@@ -259,11 +312,27 @@
         </div>
       </div>
     </div>
+    
     <!-- Script tag to include the XLSX library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script>
-      var bannerContent, bannerTitle, workbook, filteredSheet, displayFileName, fileJsonData, stepCount = 0, file, fileData, fileInputContainer, selectedSheetName, selectedFileName, table, syncRow, sheetDropdown, reader;
+      var bannerContent,
+        bannerTitle,
+        workbook,
+        filteredSheet,
+        displayFileName,
+        fileJsonData,
+        stepCount = 0,
+        file,
+        fileData,
+        fileInputContainer,
+        selectedSheetName,
+        selectedFileName,
+        table,
+        syncRow,
+        sheetDropdown,
+        reader;
 
       // Handle file input change
       document.addEventListener("DOMContentLoaded", function () {
@@ -278,9 +347,15 @@
         bannerTitle = document.getElementById("step-title");
         reader = new FileReader();
 
-        document.getElementById("syncRowBtn").addEventListener("click", handleSyncRowButtonClick);
-        document.getElementById("back-button").addEventListener("click", handleBackButtonClick);
-        document.getElementById("preview-content").addEventListener("click", handlePreviewContentClick);
+        document
+          .getElementById("syncRowBtn")
+          .addEventListener("click", handleSyncRowButtonClick);
+        document
+          .getElementById("back-button")
+          .addEventListener("click", handleBackButtonClick);
+        document
+          .getElementById("preview-content")
+          .addEventListener("click", handlePreviewContentClick);
       });
 
       function reattachFileInputListener() {
@@ -291,7 +366,7 @@
           file.addEventListener("change", handleFileInputChange);
         }
       }
-      
+
       // Handle file input change
       function handleFileInputChange(event) {
         fileData = event.target.files[0];
@@ -303,7 +378,7 @@
           displayFileName = fileData.name;
           fileInputContainer.classList.add("uploaded");
           fileInputContainer.innerHTML =
-            '<p></i><i class="fas fa-circle-check"></i></p><p>Uploaded</p><p id="file-name"></p>';
+            '<p><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8.5L7.66667 10.1667L11 6.83333M16 8.5C16 12.6421 12.6421 16 8.5 16C4.35786 16 1 12.6421 1 8.5C1 4.35786 4.35786 1 8.5 1C12.6421 1 16 4.35786 16 8.5Z" stroke="#FF4201" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></p><p>Uploaded</p><p id="file-name"></p>';
 
           var uploadedFileName = document.getElementById("file-name");
           uploadedFileName.innerText = fileData.name;
@@ -319,9 +394,8 @@
 
       // Read excel file content
       function readExcelFile(file) {
-        
         reader.onload = function (e) {
-          try{
+          try {
             var data = e.target.result;
             workbook = XLSX.read(data, { type: "binary" });
 
@@ -346,7 +420,7 @@
               filteredSheet = sheetDropdown.value;
               toggleClassNameById("preview", "hidden", false);
             });
-          }catch(error){
+          } catch (error) {
             parent.postMessage(
               {
                 pluginMessage: {
@@ -388,6 +462,7 @@
 
       // Handle row rows to layers click
       function handleSyncRowButtonClick(event) {
+        // Remove the event listener to prevent multiple calls
         parent.postMessage(
           {
             pluginMessage: { type: "populate-template", data: fileJsonData },
@@ -407,17 +482,21 @@
             toggleClassNameById("selectSpreadsheet", "hidden", true);
             toggleClassNameById("back-button-container", "hidden", true);
             toggleClassNameById("preview", "hidden", true);
-            toggleClassNameById("fileInputContainer", "file-input-container", true);
+            toggleClassNameById(
+              "fileInputContainer",
+              "file-input-container",
+              true
+            );
             toggleClassNameById("fileInputContainer", "uploaded", false);
 
             fileInputContainer.innerHTML =
-              '<input type="file" class="file-input" accept=".xlsx, .xls" id="fileInput"/><p><i class="fas fa-circle-plus"></i></p><p>Upload file</p>';
+              '<input type="file" class="file-input" accept=".xlsx, .xls" id="fileInput"/><p><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.1 6C9.1 5.66863 8.83137 5.4 8.5 5.4C8.16863 5.4 7.9 5.66863 7.9 6H9.1ZM7.9 11C7.9 11.3314 8.16863 11.6 8.5 11.6C8.83137 11.6 9.1 11.3314 9.1 11H7.9ZM11 9.1C11.3314 9.1 11.6 8.83137 11.6 8.5C11.6 8.16863 11.3314 7.9 11 7.9V9.1ZM6 7.9C5.66863 7.9 5.4 8.16863 5.4 8.5C5.4 8.83137 5.66863 9.1 6 9.1V7.9ZM7.9 6V8.5H9.1V6H7.9ZM7.9 8.5V11H9.1V8.5H7.9ZM11 7.9H8.5V9.1H11V7.9ZM8.5 7.9H6V9.1H8.5V7.9ZM15.4 8.5C15.4 12.3108 12.3108 15.4 8.5 15.4V16.6C12.9735 16.6 16.6 12.9735 16.6 8.5H15.4ZM8.5 15.4C4.68923 15.4 1.6 12.3108 1.6 8.5H0.4C0.4 12.9735 4.02649 16.6 8.5 16.6V15.4ZM1.6 8.5C1.6 4.68923 4.68923 1.6 8.5 1.6V0.4C4.02649 0.4 0.4 4.02649 0.4 8.5H1.6ZM8.5 1.6C12.3108 1.6 15.4 4.68923 15.4 8.5H16.6C16.6 4.02649 12.9735 0.4 8.5 0.4V1.6Z" fill="#FF4201"/></svg></p><p>Upload File</p>';
             reattachFileInputListener();
 
             bannerTitle.innerText = "Upload a Spreadsheet!";
             bannerContent.innerText =
               "Drop a spreadsheet to populate your Figma frames with the content from its rows!";
-            
+
             break;
           case 1:
             toggleClassNameById("preview", "hidden", false);
@@ -429,7 +508,7 @@
             bannerTitle.innerText = "Check row and layer names!";
             bannerContent.innerText =
               "Name the rows of content in your spreadsheet with the same layer names on your Figma frames.";
-            
+
             toggleClassNameById("selectedSheetName", "hidden", true);
             toggleClassNameById("selectedFileName", "hidden", true);
 
@@ -443,7 +522,7 @@
             break;
         }
       }
-      
+
       // Show preview table
       function populateTable(data) {
         toggleClassNameById("data-table", "hidden", false);
@@ -506,7 +585,7 @@
         );
         return res !== null;
       }
-      
+
       function toggleClassNameById(id, className, add) {
         const element = document.getElementById(id);
         if (add) {
@@ -515,7 +594,7 @@
           element.classList.remove(className);
         }
       }
-      
+
       // Setup the window.onmessage listener
       window.onmessage = (event) => {
         const message = event.data.pluginMessage;
