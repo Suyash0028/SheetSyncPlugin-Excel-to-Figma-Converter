@@ -1,0 +1,20 @@
+{
+  "name": "Asseto",
+  "id": "1372682857528149203",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "*"
+    ],
+    "reasoning": "This plugin requires access to resources from any domain for its functionality."
+  }
+}

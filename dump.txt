@@ -1,0 +1,179 @@
+// Runs this code if the plugin is run in Figma
+if (figma.editorType === 'figma') {
+  // This plugin will open a window to prompt the user to enter a number, and
+  // it will then create that many rectangles on the screen.
+
+  // This shows the HTML page in "ui.html".
+  figma.showUI(__html__);
+  // Calls to "parent.postMessage" from within the HTML page will trigger this
+  // callback. The callback will be passed the "pluginMessage" property of the
+  // posted message.
+  figma.ui.onmessage =  (msg: {type: string, count: number}) => {
+    // One way of distinguishing between different types of messages sent from
+    // your HTML page is to use an object with a "type" property like this.
+    if (msg.type === 'create-shapes') {
+      const nodes: SceneNode[] = [];
+      for (let i = 0; i < msg.count; i++) {
+        const rect = figma.createRectangle();
+        rect.x = i * 150;
+        rect.fills = [{type: 'SOLID', color: {r: 1, g: 0.5, b: 0}}];
+        figma.currentPage.appendChild(rect);
+        nodes.push(rect);
+      }
+      figma.currentPage.selection = nodes;
+      figma.viewport.scrollAndZoomIntoView(nodes);
+    }
+
+    // Make sure to close the plugin when you're done. Otherwise the plugin will
+    // keep running, which shows the cancel button at the bottom of the screen.
+    figma.closePlugin();
+  };
+}
+
+// Runs this code if the plugin is run in FigJam
+if (figma.editorType === 'figjam') {
+  // This plugin will open a window to prompt the user to enter a number, and
+  // it will then create that many shapes and connectors on the screen.
+
+  // This shows the HTML page in "ui.html".
+  figma.showUI(__html__);
+
+  // Calls to "parent.postMessage" from within the HTML page will trigger this
+  // callback. The callback will be passed the "pluginMessage" property of the
+  // posted message.
+  figma.ui.onmessage =  (msg: {type: string, count: number}) => {
+    // One way of distinguishing between different types of messages sent from
+    // your HTML page is to use an object with a "type" property like this.
+    if (msg.type === 'create-shapes') {
+      const numberOfShapes = msg.count;
+      const nodes: SceneNode[] = [];
+      for (let i = 0; i < numberOfShapes; i++) {
+        const shape = figma.createShapeWithText();
+        // You can set shapeType to one of: 'SQUARE' | 'ELLIPSE' | 'ROUNDED_RECTANGLE' | 'DIAMOND' | 'TRIANGLE_UP' | 'TRIANGLE_DOWN' | 'PARALLELOGRAM_RIGHT' | 'PARALLELOGRAM_LEFT'
+        shape.shapeType = 'ROUNDED_RECTANGLE'
+        shape.x = i * (shape.width + 200);
+        shape.fills = [{type: 'SOLID', color: {r: 1, g: 0.5, b: 0}}];
+        figma.currentPage.appendChild(shape);
+        nodes.push(shape);
+      }
+
+      for (let i = 0; i < (numberOfShapes - 1); i++) {
+        const connector = figma.createConnector();
+        connector.strokeWeight = 8
+
+        connector.connectorStart = {
+          endpointNodeId: nodes[i].id,
+          magnet: 'AUTO',
+        };
+
+        connector.connectorEnd = {
+          endpointNodeId: nodes[i+1].id,
+          magnet: 'AUTO',
+        };
+      }
+
+      figma.currentPage.selection = nodes;
+      figma.viewport.scrollAndZoomIntoView(nodes);
+    }
+
+    // Make sure to close the plugin when you're done. Otherwise the plugin will
+    // keep running, which shows the cancel button at the bottom of the screen.
+    figma.closePlugin();
+  };
+};
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Excel File Reader</title>
+    <script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"></script>
+  </head>
+  <body>
+    <input type="file" id="fileInput" accept=".xlsx" />
+    
+    
+    <script>
+      var input = document.getElementById('fileInput');
+    input.addEventListener('change', function() {
+      readXlsxFile(input.files[0]).then(function(rows) {
+        // `rows` is an array of rows
+        //console.log(rows);
+        console.log(input.files);
+        // each row being an array of cells.
+      })
+    })
+    </script>
+  </body>
+</html>
+
+
+
+
+function handleURL(e) {
+        var url = e.target.value;
+        if (isValidURL(url)) {
+          fetch(url)
+            .then((response) => response.blob())
+            .then((blob) => {
+              var file = new File([blob], "temp.xlsx", {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              });
+              readFile(file);
+            })
+            .catch((error) => console.error("Error fetching URL:", error));
+        } else {
+          parent.postMessage("URL is not correct");
+        }
+      }
+
+      function isValidURL(url) {
+        // Basic URL validation
+        // Regular expression for validating URLs
+        const urlRegex = /^(?:https?|ftp):\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z]{2,})+(?:\/[^\s]*)?$/;
+
+        // Test the URL against the regex
+        return urlRegex.test(url);
+      }
+
+
+//var sheetUrl = `https://spreadsheets.google.com/feeds/worksheets/${sheetId}/public/full?alt=json`
+          //"https://corsproxy.io/?" +
+          // encodeURIComponent(
+
+          //     //`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv` //
+          // );
+
+
+           #data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* Space between rows */
+  background-color: #d3d3d3; /* Light grey background for the table */
+  padding: 10px; /* Padding around the table */
+}
+
+#data-table tbody tr {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px; /* Space between rows */
+  overflow: hidden; /* Ensure border-radius is applied */
+  display: block; /* Display as block to apply border-radius */
+}
+
+#data-table th, #data-table td {
+  padding: 8px;
+  border: none; /* Remove borders for better appearance */
+  text-align: left; /* Align text to the left */
+}
+
+ⓘ
+
+⨁
+<i class="far fa-circle-check">

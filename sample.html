@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Hashing with Compression</title>
+</head>
+<body>
+    <script>
+        // Function to calculate the hash of an image
+        function getImageHash(url, callback) {
+            // Create a new Image object
+            const img = new Image();
+
+            // Set up the load event listener to get dimensions
+            img.crossOrigin = "Anonymous"; // Enable CORS
+            img.onload = function() {
+                // Check if image dimensions exceed the limit
+                if (img.width > 4000 || img.height > 4000) {
+                    // Compress the image
+                    compressImage(img, 4000, 4000, (compressedImg) => {
+                        // Get the pixel data from the compressed image
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = compressedImg.width;
+                        canvas.height = compressedImg.height;
+                        ctx.drawImage(compressedImg, 0, 0);
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+                        // Calculate the hash from the pixel data
+                        const hash = calculateHash(imageData);
+
+                        // Invoke the callback function with the hash
+                        callback(hash);
+                    });
+                } else {
+                    // Get the pixel data from the original image
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+                    // Calculate the hash from the pixel data
+                    const hash = calculateHash(imageData);
+
+                    // Invoke the callback function with the hash
+                    callback(hash);
+                }
+            };
+
+            // Set the source of the image
+            img.src = url;
+        }
+
+        // Function to calculate a simple hash from pixel data
+        function calculateHash(imageData) {
+            let hash = 0;
+
+            // Process every fourth element (RGBA values)
+            for (let i = 0; i < imageData.length; i += 4) {
+                hash += imageData[i] + imageData[i + 1] + imageData[i + 2];
+            }
+
+            return hash;
+        }
+
+        // Function to compress the image
+        function compressImage(img, maxWidth, maxHeight, callback) {
+            // Calculate the scaling factor to keep the dimensions within the limits
+            const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+
+            // Create a canvas element
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+
+            // Draw the scaled image on the canvas
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Invoke the callback function with the compressed image
+            callback(canvas);
+        }
+
+        // Example usage
+        const imageUrl = 'https://images.unsplash.com/photo-1602866813929-6bc4933c7013?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+        getImageHash(imageUrl, (hash) => {
+            console.log(`Image hash: ${hash}`);
+        });
+    </script>
+</body>
+</html>

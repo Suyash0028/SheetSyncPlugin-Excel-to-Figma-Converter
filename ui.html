@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Read Excel File</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="code.js"></script>
+    <style>
+      body {
+        background-color: #edece8;
+        color: #000000; /* Black font color */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        font-size: 12px !important;
+      }
+      .content-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 60px); /* Exclude banner height */
+        width: 100%;
+      }
+
+      /* File upload CSS */
+      .file-input-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        height: 287px;
+        background-color: #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .file-input-container p {
+        margin: 0;
+        font-size: 15px;
+        color: #ff4201; /* Orange color for the plus icon */
+      }
+      .file-input-container .file-input {
+        display: none;
+      }
+      .file-input-container.uploaded {
+        background-color: #ffd5c6; /* Pale orange */
+      }
+      .file-input-container.uploaded p {
+        color: #ff4201; /* White color for the tick icon */
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* Footer banner msg CSS */
+      .step-section {
+        bottom: 0;
+        width: 100%;
+        background-color: #ffffff;
+        color: #000000; /* Black font color */
+        padding: 15px;
+        margin: 0;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .info-icon {
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      #step-title {
+        font-weight: bold;
+        font-size: 12px;
+      }
+      #step-content {
+        margin: 0;
+        font-size: 10px;
+      }
+
+      /* Custom Button CSS */
+      .custom-Btn {
+        background-color: #ff4201; /* Light orange */
+        padding: 5px;
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 212px; /* 70% of the screen width */
+        height: 28px;
+        font-size: 11px;
+        margin: 0 auto; /* Center horizontally */
+        color: white;
+      }
+      .custom-Btn:disabled {
+        background-color: #d3d3d3; /* Light grey */
+        color: #7d7d7d; /* Adjust text color for better visibility */
+        cursor: not-allowed;
+        box-shadow: none; /* Optional: remove shadow for disabled state */
+      }
+      .custom-Btn:active {
+        background-color: #e63b00; /* Lighter version of the original background color */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      }
+      .custom-Btn:focus {
+        background-color: #e63b00; /* Ensure focus state has the same background */
+      }
+
+      /* Custom preview table CSS */
+      .custom-Btn:focus {
+        outline: none;
+      }
+      .custom-table {
+        width: 320px;
+        height: 189px;
+        font-size: 12px;
+        overflow: auto;
+        background-color: white;
+        border: 1px solid white;
+        margin-bottom: 100px;
+      }
+      .custom-table table {
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .custom-table th,
+      .custom-table td,
+      tr {
+        border: 1px solid white;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+        box-sizing: border-box;
+      }
+
+      /* Sheet selection Dropdown CSS */
+      .dropdownBtn {
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        background-color: #fff;
+        /* Ensure the dropdown appears below */
+        position: relative;
+        z-index: 1;
+        width: 90%;
+        border-radius: 6px;
+      }
+      .dropdownBtn option {
+        background-color: #fff !important;
+      }
+      
+      /* Back Button CSS */
+      #back-button-container {
+        position: absolute;
+        top: 20px; /* Adjust top margin */
+        left: 20px; /* Adjust left margin */
+        z-index: 1000; /* Ensure it stays on top */
+      }
+      #back-button {
+        background: none;
+        border: none;
+        color: #000000; /* Black color for the icon */
+        font-size: 24px; /* Increase icon size */
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+      }
+      #back-button strong {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div id="back-button-container" class="hidden">
+        <button id="back-button">
+          <i class="fas fa-angle-left"></i>
+        </button>
+      </div>
+      <p
+        id="selectSpreadsheet"
+        class="hidden"
+        style="margin: 0; margin-top: 15px"
+      >
+        <strong>Select Spreadsheet</strong>
+      </p>
+      <select id="sheetDropdown" class="dropdownBtn hidden" style="margin: 5px; width: -webkit-fill-available;">
+        <option value="#">Select a sheet</option>
+      </select>
+      <div>
+        <p style="margin: 0; margin-top: 15px;" id="selectedFileName" class="hidden"></p>
+        <p style="margin: 0" id="selectedSheetName" class="hidden"></p>
+        <div id="syncRow" class="hidden mt-3" style="text-align: center">
+          <button class="form-control custom-Btn" id="syncRowBtn">
+            Sync Rows with Layers
+          </button>
+          <span id="frame-count"></span>
+        </div>
+      </div>
+    </div>
+    <div class="content-container">
+      <div class="container">
+        <!-- File Upload -->
+        <label id="fileInputContainer" class="file-input-container">
+          <input
+            type="file"
+            class="file-input"
+            accept=".xlsx, .xls"
+            id="fileInput"
+          />
+          <p><i class="fas fa-circle-plus"></i></p>
+          <p>Upload file</p>
+        </label>
+        <!-- Table to display Excel data -->
+        <table id="data-table" class="hidden custom-table">
+          <thead>
+            <tr>
+              <!-- Table headers will be dynamically added here -->
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data rows will be dynamically added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="step3">
+      <div id="preview" class="hidden mt-3" style="margin-bottom: 50px">
+        <button class="form-control custom-Btn" id="preview-content">
+          Preview Content
+        </button>
+      </div>
+    </div>
+    <div class="step-section">
+      <div class="d-flex align-items-center">
+        <div class="info-icon"><i class="fas fa-circle-info"></i></div>
+        <div>
+          <div id="step-title">Upload a Spreadsheet!</div>
+          <p id="step-content">
+            Drop a spreadsheet to populate your Figma frames with the content
+            from its rows!
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- Script tag to include the XLSX library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+      var bannerContent, bannerTitle, workbook, filteredSheet, displayFileName, fileJsonData, stepCount = 0, file, fileData, fileInputContainer, selectedSheetName, selectedFileName, table, syncRow, sheetDropdown, reader;
+
+      // Handle file input change
+      document.addEventListener("DOMContentLoaded", function () {
+        reattachFileInputListener();
+        fileInputContainer = document.getElementById("fileInputContainer");
+        selectedSheetName = document.getElementById("selectedSheetName");
+        selectedFileName = document.getElementById("selectedFileName");
+        table = document.getElementById("data-table");
+        syncRow = document.getElementById("syncRow");
+        sheetDropdown = document.getElementById("sheetDropdown");
+        bannerContent = document.getElementById("step-content");
+        bannerTitle = document.getElementById("step-title");
+        reader = new FileReader();
+
+        document.getElementById("syncRowBtn").addEventListener("click", handleSyncRowButtonClick);
+        document.getElementById("back-button").addEventListener("click", handleBackButtonClick);
+        document.getElementById("preview-content").addEventListener("click", handlePreviewContentClick);
+      });
+
+      function reattachFileInputListener() {
+        file = document.getElementById("fileInput");
+
+        // Check if file is not null before adding the event listener
+        if (file) {
+          file.addEventListener("change", handleFileInputChange);
+        }
+      }
+      
+      // Handle file input change
+      function handleFileInputChange(event) {
+        fileData = event.target.files[0];
+        if (fileData) {
+          toggleClassNameById("sheetDropdown", "hidden", false);
+          toggleClassNameById("selectSpreadsheet", "hidden", false);
+          toggleClassNameById("back-button-container", "hidden", false);
+          readExcelFile(fileData);
+          displayFileName = fileData.name;
+          fileInputContainer.classList.add("uploaded");
+          fileInputContainer.innerHTML =
+            '<p></i><i class="fas fa-circle-check"></i></p><p>Uploaded</p><p id="file-name"></p>';
+
+          var uploadedFileName = document.getElementById("file-name");
+          uploadedFileName.innerText = fileData.name;
+          uploadedFileName.style.color = "black";
+          uploadedFileName.style.fontSize = "15px";
+
+          bannerTitle.innerText = "Check row and layer names!";
+          bannerContent.innerText =
+            "Name the rows of content in your spreadsheet with the same layer names on your Figma frames.";
+          stepCount++;
+        }
+      }
+
+      // Read excel file content
+      function readExcelFile(file) {
+        
+        reader.onload = function (e) {
+          try{
+            var data = e.target.result;
+            workbook = XLSX.read(data, { type: "binary" });
+
+            sheetDropdown.innerHTML = ""; // Clear existing options
+
+            var option = document.createElement("option");
+            option.value = "#";
+            option.text = "Select a sheet";
+            option.selected = true;
+            option.disabled = true;
+            sheetDropdown.appendChild(option);
+
+            workbook.SheetNames.forEach(function (sheetName) {
+              var option = document.createElement("option");
+              option.value = sheetName;
+              option.text = sheetName;
+              sheetDropdown.appendChild(option);
+            });
+
+            sheetDropdown.disabled = false; // Enable the dropdown after populating
+            sheetDropdown.addEventListener("change", function () {
+              filteredSheet = sheetDropdown.value;
+              toggleClassNameById("preview", "hidden", false);
+            });
+          }catch(error){
+            parent.postMessage(
+              {
+                pluginMessage: {
+                  type: "error",
+                  message: error,
+                },
+              },
+              "*"
+            );
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      // Handle preview button click
+      function handlePreviewContentClick(event) {
+        parent.postMessage({ pluginMessage: { type: "get-count" } }, "*");
+        toggleClassNameById("preview", "hidden", true);
+        toggleClassNameById("selectSpreadsheet", "hidden", true);
+        toggleClassNameById("sheetDropdown", "hidden", true);
+        toggleClassNameById("fileInputContainer", "hidden", true);
+
+        bannerTitle.innerText = "Apply content to Figma frames!";
+        bannerContent.innerText =
+          "Preview spreadsheet content and select the Figma frames to apply the content.";
+
+        toggleClassNameById("selectedSheetName", "hidden", false);
+        toggleClassNameById("selectedFileName", "hidden", false);
+
+        selectedFileName.innerHTML = `File loaded: <b>${displayFileName}</b>`;
+        selectedSheetName.innerHTML = `Tab/Selected Sheet: <b>${filteredSheet}</b>`;
+
+        toggleClassNameById("syncRow", "hidden", false);
+        var firstSheet = workbook.Sheets[filteredSheet];
+        fileJsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+        populateTable(fileJsonData);
+        stepCount++;
+      }
+
+      // Handle row rows to layers click
+      function handleSyncRowButtonClick(event) {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "populate-template", data: fileJsonData },
+          },
+          "*"
+        );
+      }
+
+      // Handle back button click
+      function handleBackButtonClick(event) {
+        if (stepCount > 0) {
+          stepCount--;
+        }
+        switch (stepCount) {
+          case 0:
+            toggleClassNameById("sheetDropdown", "hidden", true);
+            toggleClassNameById("selectSpreadsheet", "hidden", true);
+            toggleClassNameById("back-button-container", "hidden", true);
+            toggleClassNameById("preview", "hidden", true);
+            toggleClassNameById("fileInputContainer", "file-input-container", true);
+            toggleClassNameById("fileInputContainer", "uploaded", false);
+
+            fileInputContainer.innerHTML =
+              '<input type="file" class="file-input" accept=".xlsx, .xls" id="fileInput"/><p><i class="fas fa-circle-plus"></i></p><p>Upload file</p>';
+            reattachFileInputListener();
+
+            bannerTitle.innerText = "Upload a Spreadsheet!";
+            bannerContent.innerText =
+              "Drop a spreadsheet to populate your Figma frames with the content from its rows!";
+            
+            break;
+          case 1:
+            toggleClassNameById("preview", "hidden", false);
+            toggleClassNameById("selectSpreadsheet", "hidden", false);
+            toggleClassNameById("sheetDropdown", "hidden", false);
+            toggleClassNameById("syncRowBtn", "hidden", false);
+            toggleClassNameById("fileInputContainer", "hidden", false);
+
+            bannerTitle.innerText = "Check row and layer names!";
+            bannerContent.innerText =
+              "Name the rows of content in your spreadsheet with the same layer names on your Figma frames.";
+            
+            toggleClassNameById("selectedSheetName", "hidden", true);
+            toggleClassNameById("selectedFileName", "hidden", true);
+
+            table.style.display = "none";
+            table.parentElement.style.paddingLeft = "12px";
+
+            toggleClassNameById("syncRow", "hidden", true);
+            break;
+          default:
+            toggleClassNameById("back-button-container", "hidden", true);
+            break;
+        }
+      }
+      
+      // Show preview table
+      function populateTable(data) {
+        toggleClassNameById("data-table", "hidden", false);
+        table.parentElement.style.paddingLeft = "0px";
+        table.style.display = "block";
+
+        var thead = table.getElementsByTagName("thead")[0];
+        var tbody = table.getElementsByTagName("tbody")[0];
+
+        // Clear existing headers and rows
+        thead.innerHTML = "";
+        tbody.innerHTML = "";
+
+        // Add table headers
+        var headers = data[0];
+
+        var previewContentTitleRow = document.createElement("tr");
+        var th = document.createElement("th");
+        th.textContent = "Preview Content";
+        th.setAttribute("colspan", headers.length);
+        previewContentTitleRow.appendChild(th);
+
+        var headerRow = document.createElement("tr");
+        thead.appendChild(previewContentTitleRow);
+        headers.forEach(function (header) {
+          var th = document.createElement("th");
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Add table rows
+        for (var i = 1; i < data.length; i++) {
+          var rowData = data[i];
+          var row = document.createElement("tr");
+          rowData.forEach(function (cellData) {
+            var td = document.createElement("td");
+
+            // Check if the cell data is a URL
+            if (typeof cellData === "string" && isValidURL(cellData)) {
+              var img = document.createElement("img");
+              img.src = cellData;
+              img.style.maxWidth = "100px"; // Set a max width for the image
+              img.style.maxHeight = "100px"; // Set a max height for the image
+              td.appendChild(img);
+            } else {
+              td.textContent = cellData;
+            }
+
+            row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        }
+      }
+
+      // Helper function to check if a string is a valid URL
+      function isValidURL(string) {
+        var res = string.match(
+          /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/
+        );
+        return res !== null;
+      }
+      
+      function toggleClassNameById(id, className, add) {
+        const element = document.getElementById(id);
+        if (add) {
+          element.classList.add(className);
+        } else {
+          element.classList.remove(className);
+        }
+      }
+      
+      // Setup the window.onmessage listener
+      window.onmessage = (event) => {
+        const message = event.data.pluginMessage;
+        if (message.type === "update-count") {
+          document.getElementById(
+            "frame-count"
+          ).innerText = `(${message.count} selected)`;
+
+          if (message.count == 0) {
+            document.getElementById("syncRowBtn").disabled = true;
+            parent.postMessage(
+              {
+                pluginMessage: {
+                  type: "error",
+                  message: "Please select frames!!",
+                },
+              },
+              "*"
+            );
+          } else {
+            document.getElementById("syncRowBtn").disabled = false;
+          }
+        }
+      };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+  </body>
+</html>
