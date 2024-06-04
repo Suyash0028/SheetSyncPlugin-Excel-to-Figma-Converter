@@ -19,34 +19,44 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
     <script src="code.js"></script>
     <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
       body {
         background-color: #edece8;
         color: #000000; /* Black font color */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
         height: 100vh;
         font-size: 12px !important;
       }
-      .content-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: calc(100vh - 60px); /* Exclude banner height */
-        width: 100%;
+      .top-container {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
       }
 
       /* File upload CSS */
+      .content-container {
+        position: fixed;
+        bottom: 50%; /* Aligning the bottom of the container at the vertical center */
+        left: 50%;
+        transform: translate(-50%, 50%) translateY(-30px); /* Adjusting to deduct half of the banner's height */
+      }
       .file-input-container {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         width: auto;
-        height: 287px;
+        height: 287px; /* Adjust as needed */
         background-color: #ffffff;
         border-radius: 50%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -56,7 +66,7 @@
       }
       .file-input-container p {
         margin: 0;
-        font-size: 15px;
+        font-size: 14.5px;
         color: #ff4201; /* Orange color for the plus icon */
       }
       .file-input-container .file-input {
@@ -68,33 +78,39 @@
       .file-input-container.uploaded p {
         color: #ff4201; /* White color for the tick icon */
       }
+
       .hidden {
         display: none;
       }
 
       /* Footer banner msg CSS */
-      .step-section {
+      .bottom-banner {
         bottom: 0;
         width: 100%;
         background-color: #ffffff;
         color: #000000; /* Black font color */
         padding: 10px;
         margin: 0;
+        position: fixed;
+        left: 0;
         box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
       }
       .info-icon {
         font-size: 16px;
         margin-right: 10px;
+        margin-top: 3px;
       }
       #step-title {
-        font-weight: bold;
+        font-weight: 600;
         font-size: 12px;
       }
       #step-content {
         margin: 0;
         font-size: 10px;
+        color: #6c6c6c;
+        font-weight: 500;
       }
-      
+
       /* Custom Button CSS */
       .custom-Btn {
         background-color: #ff4201; /* Light orange */
@@ -103,9 +119,10 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         width: 260px; /* 70% of the screen width */
         height: 38px;
-        font-size: 11px;
+        font-size: 12px;
         margin: 0 auto; /* Center horizontally */
         color: white;
+        font-weight: 600;
       }
       .custom-Btn:disabled {
         background-color: #d3d3d3; /* Light grey */
@@ -150,10 +167,13 @@
         padding-top: 0 !important;
         color: #6c6c6c;
       }
+      th{
+        font-weight: 600;
+      }
       /* Sheet selection Dropdown CSS */
       .dropdownBtn {
         padding: 10px;
-        font-size: 16px;
+        font-size: 15px;
         border: none;
         background-color: #fff;
         /* Ensure the dropdown appears below */
@@ -168,7 +188,6 @@
 
       /* Back Button CSS */
       #back-button-container {
-        position: absolute;
         top: 20px; /* Adjust top margin */
         left: 20px; /* Adjust left margin */
         z-index: 1000; /* Ensure it stays on top */
@@ -187,11 +206,21 @@
       }
       #frame-count {
         margin-top: 15px;
+        color: #6c6c6c;
+      }
+      .previewbtn-container {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      #file-name{
+        font-weight: 600;
       }
     </style>
   </head>
   <body>
-    <div class="container mt-5">
+    <div class="container top-container">
       <div id="back-button-container" class="hidden">
         <button id="back-button">
           <svg
@@ -214,14 +243,14 @@
       <p
         id="selectSpreadsheet"
         class="hidden"
-        style="margin: 0; margin-top: 15px"
+        style="margin: 0; margin-top: 15px; font-weight: 600;"
       >
-        <strong>Select Spreadsheet</strong>
+        Select Spreadsheet
       </p>
       <select
         id="sheetDropdown"
         class="dropdownBtn hidden"
-        style="margin: 5px 0; width: -webkit-fill-available"
+        style="margin: 5px 0; width: -webkit-fill-available;"
       >
         <option value="#">Select a sheet</option>
       </select>
@@ -231,7 +260,7 @@
           id="selectedFileName"
           class="hidden"
         ></p>
-        <p style="margin: 0" id="selectedSheetName" class="hidden"></p>
+        <p style="margin: 5px 0" id="selectedSheetName" class="hidden"></p>
         <div id="syncRow" class="hidden mt-3" style="text-align: center">
           <button class="form-control custom-Btn" id="syncRowBtn">
             Sync Rows with Layers
@@ -240,55 +269,52 @@
         </div>
       </div>
     </div>
-    <div class="content-container">
-      <div class="container">
-        <!-- File Upload -->
-        <label id="fileInputContainer" class="file-input-container">
-          <input
-            type="file"
-            class="file-input"
-            accept=".xlsx, .xls"
-            id="fileInput"
-          />
-          <p>
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 17 17"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9.1 6C9.1 5.66863 8.83137 5.4 8.5 5.4C8.16863 5.4 7.9 5.66863 7.9 6H9.1ZM7.9 11C7.9 11.3314 8.16863 11.6 8.5 11.6C8.83137 11.6 9.1 11.3314 9.1 11H7.9ZM11 9.1C11.3314 9.1 11.6 8.83137 11.6 8.5C11.6 8.16863 11.3314 7.9 11 7.9V9.1ZM6 7.9C5.66863 7.9 5.4 8.16863 5.4 8.5C5.4 8.83137 5.66863 9.1 6 9.1V7.9ZM7.9 6V8.5H9.1V6H7.9ZM7.9 8.5V11H9.1V8.5H7.9ZM11 7.9H8.5V9.1H11V7.9ZM8.5 7.9H6V9.1H8.5V7.9ZM15.4 8.5C15.4 12.3108 12.3108 15.4 8.5 15.4V16.6C12.9735 16.6 16.6 12.9735 16.6 8.5H15.4ZM8.5 15.4C4.68923 15.4 1.6 12.3108 1.6 8.5H0.4C0.4 12.9735 4.02649 16.6 8.5 16.6V15.4ZM1.6 8.5C1.6 4.68923 4.68923 1.6 8.5 1.6V0.4C4.02649 0.4 0.4 4.02649 0.4 8.5H1.6ZM8.5 1.6C12.3108 1.6 15.4 4.68923 15.4 8.5H16.6C16.6 4.02649 12.9735 0.4 8.5 0.4V1.6Z"
-                fill="#FF4201"
-              />
-            </svg>
-          </p>
-          <p>Upload File</p>
-        </label>
-        <!-- Table to display Excel data -->
-        <table id="data-table" class="hidden custom-table">
-          <thead>
-            <tr>
-              <!-- Table headers will be dynamically added here -->
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Data rows will be dynamically added here -->
-          </tbody>
-        </table>
-      </div>
+    <div class="container content-container">
+      <!-- File Upload -->
+      <label id="fileInputContainer" class="file-input-container">
+        <input
+          type="file"
+          class="file-input"
+          accept=".xlsx, .xls"
+          id="fileInput"
+        />
+        <p>
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 17 17"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.1 6C9.1 5.66863 8.83137 5.4 8.5 5.4C8.16863 5.4 7.9 5.66863 7.9 6H9.1ZM7.9 11C7.9 11.3314 8.16863 11.6 8.5 11.6C8.83137 11.6 9.1 11.3314 9.1 11H7.9ZM11 9.1C11.3314 9.1 11.6 8.83137 11.6 8.5C11.6 8.16863 11.3314 7.9 11 7.9V9.1ZM6 7.9C5.66863 7.9 5.4 8.16863 5.4 8.5C5.4 8.83137 5.66863 9.1 6 9.1V7.9ZM7.9 6V8.5H9.1V6H7.9ZM7.9 8.5V11H9.1V8.5H7.9ZM11 7.9H8.5V9.1H11V7.9ZM8.5 7.9H6V9.1H8.5V7.9ZM15.4 8.5C15.4 12.3108 12.3108 15.4 8.5 15.4V16.6C12.9735 16.6 16.6 12.9735 16.6 8.5H15.4ZM8.5 15.4C4.68923 15.4 1.6 12.3108 1.6 8.5H0.4C0.4 12.9735 4.02649 16.6 8.5 16.6V15.4ZM1.6 8.5C1.6 4.68923 4.68923 1.6 8.5 1.6V0.4C4.02649 0.4 0.4 4.02649 0.4 8.5H1.6ZM8.5 1.6C12.3108 1.6 15.4 4.68923 15.4 8.5H16.6C16.6 4.02649 12.9735 0.4 8.5 0.4V1.6Z"
+              fill="#FF4201"
+            />
+          </svg>
+        </p>
+        <p style="margin-top: 3px; font-weight: 600;">Upload File</p>
+      </label>
+      <!-- Table to display Excel data -->
+      <table id="data-table" class="hidden custom-table">
+        <thead>
+          <tr>
+            <!-- Table headers will be dynamically added here -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows will be dynamically added here -->
+        </tbody>
+      </table>
     </div>
-
-    <div class="step3">
+    <div class="container previewbtn-container">
       <div id="preview" class="hidden mt-3" style="margin-bottom: 50px">
         <button class="form-control custom-Btn" id="preview-content">
           Preview Content
         </button>
       </div>
     </div>
-    <div class="step-section">
-      <div class="d-flex align-items-center position-relative">
+    <div class="bottom-banner">
+      <div class="d-flex position-relative">
         <div class="info-icon">
           <svg
             width="16"
@@ -298,21 +324,20 @@
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              d="M8.125 8.125H8.725C8.725 7.79363 8.45637 7.525 8.125 7.525V8.125ZM8.125 11.2917H7.525C7.525 11.623 7.79363 11.8917 8.125 11.8917V11.2917ZM8.91667 11.8917C9.24804 11.8917 9.51667 11.623 9.51667 11.2917C9.51667 10.9603 9.24804 10.6917 8.91667 10.6917V11.8917ZM7.33333 7.525C7.00196 7.525 6.73333 7.79363 6.73333 8.125C6.73333 8.45637 7.00196 8.725 7.33333 8.725V7.525ZM8.125 4.35833C7.79363 4.35833 7.525 4.62696 7.525 4.95833C7.525 5.2897 7.79363 5.55833 8.125 5.55833V4.35833ZM8.13292 5.55833C8.46429 5.55833 8.73292 5.2897 8.73292 4.95833C8.73292 4.62696 8.46429 4.35833 8.13292 4.35833V5.55833ZM7.525 8.125V11.2917H8.725V8.125H7.525ZM8.125 11.8917H8.91667V10.6917H8.125V11.8917ZM8.125 7.525H7.33333V8.725H8.125V7.525ZM14.65 8.125C14.65 11.7287 11.7287 14.65 8.125 14.65V15.85C12.3914 15.85 15.85 12.3914 15.85 8.125H14.65ZM8.125 14.65C4.52134 14.65 1.6 11.7287 1.6 8.125H0.4C0.4 12.3914 3.8586 15.85 8.125 15.85V14.65ZM1.6 8.125C1.6 4.52134 4.52134 1.6 8.125 1.6V0.4C3.8586 0.4 0.4 3.8586 0.4 8.125H1.6ZM8.125 1.6C11.7287 1.6 14.65 4.52134 14.65 8.125H15.85C15.85 3.8586 12.3914 0.4 8.125 0.4V1.6ZM8.125 5.55833H8.13292V4.35833H8.125V5.55833Z"
-              fill="#242629"
+              d="M13.6586 2.34497C12.3504 1.03584 10.6286 0.220829 8.78681 0.0387993C6.94499 -0.143231 5.09703 0.318981 3.55779 1.34668C2.01854 2.37438 0.883251 3.90399 0.345339 5.67489C-0.192574 7.44579 -0.0998253 9.34842 0.607782 11.0586C1.31539 12.7688 2.59407 14.1807 4.22598 15.0538C5.85788 15.927 7.74203 16.2072 9.55742 15.8469C11.3728 15.4866 13.0071 14.508 14.1818 13.0778C15.3566 11.6477 15.9991 9.85442 16 8.00363C16.0025 6.95257 15.7969 5.91142 15.3951 4.94021C14.9932 3.96901 14.4031 3.08697 13.6586 2.34497ZM12.9013 12.905C12.2632 13.5729 11.4979 14.1066 10.6506 14.4746C9.80332 14.8427 8.891 15.0377 7.96726 15.0482C7.04353 15.0588 6.127 14.8846 5.27152 14.5359C4.41604 14.1873 3.63887 13.6712 2.98564 13.018C2.33242 12.3647 1.81632 11.5876 1.46767 10.7321C1.11902 9.87661 0.944842 8.96009 0.955371 8.03635C0.9659 7.11261 1.16092 6.20029 1.52898 5.35298C1.89704 4.50568 2.43072 3.74046 3.09866 3.1023C3.73683 2.43436 4.50204 1.90068 5.34935 1.53262C6.19666 1.16456 7.10898 0.969536 8.03271 0.959007C8.95645 0.948478 9.87298 1.12266 10.7285 1.47131C11.5839 1.81996 12.3611 2.33606 13.0143 2.98928C13.6676 3.6425 14.1837 4.41968 14.5323 5.27516C14.881 6.13064 15.0551 7.04716 15.0446 7.9709C15.0341 8.89464 14.8391 9.80696 14.471 10.6543C14.1029 11.5016 13.5693 12.2668 12.9013 12.905ZM7.29066 4.2703C7.29066 4.13 7.33226 3.99286 7.4102 3.87621C7.48814 3.75956 7.59893 3.66865 7.72854 3.61496C7.85815 3.56127 8.00078 3.54723 8.13837 3.57459C8.27597 3.60196 8.40236 3.66952 8.50156 3.76872C8.60076 3.86793 8.66832 3.99432 8.69569 4.13191C8.72306 4.26951 8.70901 4.41213 8.65533 4.54175C8.60164 4.67136 8.51072 4.78214 8.39407 4.86009C8.27742 4.93803 8.14028 4.97963 7.99999 4.97963C7.90664 4.98034 7.81408 4.96248 7.7277 4.92708C7.64132 4.89169 7.56284 4.83946 7.49683 4.77345C7.43082 4.70744 7.3786 4.62897 7.34321 4.54258C7.30781 4.4562 7.28995 4.36365 7.29066 4.2703ZM9.59999 11.737C9.59999 11.8784 9.5438 12.0141 9.44378 12.1141C9.34376 12.2141 9.2081 12.2703 9.06665 12.2703H6.93332C6.79188 12.2703 6.65622 12.2141 6.5562 12.1141C6.45618 12.0141 6.39999 11.8784 6.39999 11.737C6.39999 11.5955 6.45618 11.4598 6.5562 11.3598C6.65622 11.2598 6.79188 11.2036 6.93332 11.2036H7.46666V7.47029H6.93332C6.79188 7.47029 6.65622 7.4141 6.5562 7.31408C6.45618 7.21406 6.39999 7.07841 6.39999 6.93696C6.39999 6.79551 6.45618 6.65986 6.5562 6.55984C6.65622 6.45982 6.79188 6.40363 6.93332 6.40363H7.99999C8.14144 6.40363 8.27709 6.45982 8.37711 6.55984C8.47713 6.65986 8.53332 6.79551 8.53332 6.93696V11.2036H9.06665C9.2081 11.2036 9.34376 11.2598 9.44378 11.3598C9.5438 11.4598 9.59999 11.5955 9.59999 11.737Z"
+              fill="black"
             />
           </svg>
         </div>
         <div>
-          <div id="step-title">Upload a Spreadsheet!</div>
+          <div id="step-title">Upload a .xls Spreadsheet</div>
           <p id="step-content">
-            Drop a spreadsheet to populate your Figma frames with the content
-            from its rows!
+            We’ll populate your Figma frames with the content from its rows.
           </p>
         </div>
       </div>
     </div>
-    
+
     <!-- Script tag to include the XLSX library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
@@ -378,16 +403,15 @@
           displayFileName = fileData.name;
           fileInputContainer.classList.add("uploaded");
           fileInputContainer.innerHTML =
-            '<p><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8.5L7.66667 10.1667L11 6.83333M16 8.5C16 12.6421 12.6421 16 8.5 16C4.35786 16 1 12.6421 1 8.5C1 4.35786 4.35786 1 8.5 1C12.6421 1 16 4.35786 16 8.5Z" stroke="#FF4201" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></p><p>Uploaded</p><p id="file-name"></p>';
+            '<p><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 8.5C16 12.6421 12.6421 16 8.5 16C4.35786 16 1 12.6421 1 8.5C1 4.35786 4.35786 1 8.5 1C12.6421 1 16 4.35786 16 8.5Z" fill="#FF4201" stroke="#FF4201" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><g clip-path="url(#clip0_5155_3537)"><path d="M7.56182 11.9998C7.38117 11.9998 7.21182 11.9204 7.08763 11.7614L5.19085 9.56275C4.93117 9.25811 4.93117 8.7548 5.19085 8.43692C5.45053 8.11904 5.87956 8.13228 6.15053 8.43692L7.55053 10.0793L10.8473 6.23824C11.107 5.93361 11.5473 5.93361 11.807 6.23824C12.0667 6.54288 12.0667 7.04619 11.807 7.36407L8.0473 11.7747C7.92311 11.9204 7.75376 12.0131 7.57311 12.0131L7.56182 11.9998Z" fill="white"/></g><defs><clipPath id="clip0_5155_3537"><rect width="7" height="6" fill="white" transform="translate(5 6)"/></clipPath></defs></svg></p><p style="margin-top: 3px;font-weight: 600;">Uploaded</p><p id="file-name"></p>';
 
           var uploadedFileName = document.getElementById("file-name");
           uploadedFileName.innerText = fileData.name;
           uploadedFileName.style.color = "black";
-          uploadedFileName.style.fontSize = "15px";
-
-          bannerTitle.innerText = "Check row and layer names!";
-          bannerContent.innerText =
-            "Name the rows of content in your spreadsheet with the same layer names on your Figma frames.";
+          uploadedFileName.style.fontSize = "14.5px";
+          bannerTitle.innerText = "Ensure row names match layer names.";
+          bannerContent.innerHTML =
+            "Name each spreadsheet row to correspond with the <br/>layer names in your Figma frames.";
           stepCount++;
         }
       }
@@ -443,15 +467,15 @@
         toggleClassNameById("sheetDropdown", "hidden", true);
         toggleClassNameById("fileInputContainer", "hidden", true);
 
-        bannerTitle.innerText = "Apply content to Figma frames!";
-        bannerContent.innerText =
-          "Preview spreadsheet content and select the Figma frames to apply the content.";
+        bannerTitle.innerText = "Ensure row names match layer names.";
+        bannerContent.innerHTML =
+          "Name each spreadsheet row to correspond with the <br/>layer names in your Figma frames.";
 
         toggleClassNameById("selectedSheetName", "hidden", false);
         toggleClassNameById("selectedFileName", "hidden", false);
 
-        selectedFileName.innerHTML = `File loaded: <b>${displayFileName}</b>`;
-        selectedSheetName.innerHTML = `Tab/Selected Sheet: <b>${filteredSheet}</b>`;
+        selectedFileName.innerHTML = `<span style="color: #6C6C6C;">File loaded:</span> <span style="font-weight: 600;">${displayFileName}</span>`;
+        selectedSheetName.innerHTML = `<span style="color: #6C6C6C;">Tab/Selected Sheet:</span> <span style="font-weight: 600;">${filteredSheet}</span>`;
 
         toggleClassNameById("syncRow", "hidden", false);
         var firstSheet = workbook.Sheets[filteredSheet];
@@ -490,12 +514,12 @@
             toggleClassNameById("fileInputContainer", "uploaded", false);
 
             fileInputContainer.innerHTML =
-              '<input type="file" class="file-input" accept=".xlsx, .xls" id="fileInput"/><p><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.1 6C9.1 5.66863 8.83137 5.4 8.5 5.4C8.16863 5.4 7.9 5.66863 7.9 6H9.1ZM7.9 11C7.9 11.3314 8.16863 11.6 8.5 11.6C8.83137 11.6 9.1 11.3314 9.1 11H7.9ZM11 9.1C11.3314 9.1 11.6 8.83137 11.6 8.5C11.6 8.16863 11.3314 7.9 11 7.9V9.1ZM6 7.9C5.66863 7.9 5.4 8.16863 5.4 8.5C5.4 8.83137 5.66863 9.1 6 9.1V7.9ZM7.9 6V8.5H9.1V6H7.9ZM7.9 8.5V11H9.1V8.5H7.9ZM11 7.9H8.5V9.1H11V7.9ZM8.5 7.9H6V9.1H8.5V7.9ZM15.4 8.5C15.4 12.3108 12.3108 15.4 8.5 15.4V16.6C12.9735 16.6 16.6 12.9735 16.6 8.5H15.4ZM8.5 15.4C4.68923 15.4 1.6 12.3108 1.6 8.5H0.4C0.4 12.9735 4.02649 16.6 8.5 16.6V15.4ZM1.6 8.5C1.6 4.68923 4.68923 1.6 8.5 1.6V0.4C4.02649 0.4 0.4 4.02649 0.4 8.5H1.6ZM8.5 1.6C12.3108 1.6 15.4 4.68923 15.4 8.5H16.6C16.6 4.02649 12.9735 0.4 8.5 0.4V1.6Z" fill="#FF4201"/></svg></p><p>Upload File</p>';
+              '<input type="file" class="file-input" accept=".xlsx, .xls" id="fileInput"/><p><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.1 6C9.1 5.66863 8.83137 5.4 8.5 5.4C8.16863 5.4 7.9 5.66863 7.9 6H9.1ZM7.9 11C7.9 11.3314 8.16863 11.6 8.5 11.6C8.83137 11.6 9.1 11.3314 9.1 11H7.9ZM11 9.1C11.3314 9.1 11.6 8.83137 11.6 8.5C11.6 8.16863 11.3314 7.9 11 7.9V9.1ZM6 7.9C5.66863 7.9 5.4 8.16863 5.4 8.5C5.4 8.83137 5.66863 9.1 6 9.1V7.9ZM7.9 6V8.5H9.1V6H7.9ZM7.9 8.5V11H9.1V8.5H7.9ZM11 7.9H8.5V9.1H11V7.9ZM8.5 7.9H6V9.1H8.5V7.9ZM15.4 8.5C15.4 12.3108 12.3108 15.4 8.5 15.4V16.6C12.9735 16.6 16.6 12.9735 16.6 8.5H15.4ZM8.5 15.4C4.68923 15.4 1.6 12.3108 1.6 8.5H0.4C0.4 12.9735 4.02649 16.6 8.5 16.6V15.4ZM1.6 8.5C1.6 4.68923 4.68923 1.6 8.5 1.6V0.4C4.02649 0.4 0.4 4.02649 0.4 8.5H1.6ZM8.5 1.6C12.3108 1.6 15.4 4.68923 15.4 8.5H16.6C16.6 4.02649 12.9735 0.4 8.5 0.4V1.6Z" fill="#FF4201"/></svg></p><p style="margin-top: 3px; font-weight: 600;">Upload File</p>';
             reattachFileInputListener();
 
-            bannerTitle.innerText = "Upload a Spreadsheet!";
+            bannerTitle.innerText = "Upload a .xls Spreadsheet";
             bannerContent.innerText =
-              "Drop a spreadsheet to populate your Figma frames with the content from its rows!";
+              "We’ll populate your Figma frames with the content from its rows.";
 
             break;
           case 1:
@@ -504,10 +528,10 @@
             toggleClassNameById("sheetDropdown", "hidden", false);
             toggleClassNameById("syncRowBtn", "hidden", false);
             toggleClassNameById("fileInputContainer", "hidden", false);
-
-            bannerTitle.innerText = "Check row and layer names!";
-            bannerContent.innerText =
-              "Name the rows of content in your spreadsheet with the same layer names on your Figma frames.";
+            fileInputContainer.parentElement.style.bottom = "50%";
+            bannerTitle.innerText = "Ensure row names match layer names.";
+            bannerContent.innerHTML =
+              "Name each spreadsheet row to correspond with the <br/>layer names in your Figma frames.";
 
             toggleClassNameById("selectedSheetName", "hidden", true);
             toggleClassNameById("selectedFileName", "hidden", true);
@@ -528,6 +552,7 @@
         toggleClassNameById("data-table", "hidden", false);
         table.parentElement.style.paddingLeft = "0px";
         table.style.display = "block";
+        table.parentElement.style.bottom = "40%";
 
         var thead = table.getElementsByTagName("thead")[0];
         var tbody = table.getElementsByTagName("tbody")[0];
